@@ -1,0 +1,6 @@
+<ossec_config>
+  <localfile>
+    <location>REPLACE_WITH_ABSOLUTE_PATH_TO_DEMO_EVENTS_LOG</location>
+    <log_format>syslog</log_format>
+  </localfile>
+</ossec_config>

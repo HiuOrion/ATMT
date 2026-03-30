@@ -1,0 +1,5 @@
+@timestamp,rule.id,rule.level,agent.name,rule.description,data.win.eventdata.commandLine,data.win.eventdata.image,mitre.id
+2026-03-26T10:02:18Z,100501,12,telemetry-replay,Demo ransomware behavior: rapid file write burst,"demo_ransomware_sim event=mass_write count=24 target=finance_share session=sessionB",C:\Demo\simulator.exe,T1486
+2026-03-26T10:02:34Z,100502,12,telemetry-replay,Demo ransomware behavior: rapid file rename burst,"demo_ransomware_sim event=mass_rename count=24 target=finance_share session=sessionB",C:\Demo\simulator.exe,T1486
+2026-03-26T10:02:49Z,100503,10,telemetry-replay,Demo ransomware simulation staging completed,"demo_ransomware_sim event=staging_complete count=24 target=finance_share session=sessionB",C:\Demo\simulator.exe,
+2026-03-26T10:03:07Z,61613,11,telemetry-replay,Suspicious command execution,"wbadmin delete catalog -quiet",C:\Windows\System32\wbadmin.exe,T1490

@@ -1,0 +1,6 @@
+{
+  "family": "WannaCry replay",
+  "source": "Prepared telemetry export for classroom demonstration",
+  "attack_start_time": "2026-03-25T09:15:00Z",
+  "notes": "Telemetry is replay evidence only. No executable sample is stored in this repository."
+}

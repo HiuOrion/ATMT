@@ -1,0 +1,9 @@
+<decoder name="demo-ransomware-base">
+  <prematch>^demo_ransomware_sim </prematch>
+</decoder>
+
+<decoder name="demo-ransomware-fields">
+  <parent>demo-ransomware-base</parent>
+  <regex>event=([a-z_]+)\s+count=([0-9]+)\s+target=([^\s]+)\s+session=([A-Za-z0-9_-]+)</regex>
+  <order>demo.event,demo.count,demo.target,demo.session</order>
+</decoder>

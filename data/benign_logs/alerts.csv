@@ -1,0 +1,9 @@
+@timestamp,rule.id,rule.level,agent.name,rule.description,data.win.eventdata.commandLine,data.win.eventdata.image,mitre.id
+2026-03-25T08:55:10Z,60106,3,host-laptop,Windows logon session created,"C:\Windows\System32\winlogon.exe",C:\Windows\System32\winlogon.exe,
+2026-03-25T08:57:44Z,61613,5,host-laptop,Process created,"C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE",C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE,
+2026-03-25T09:01:13Z,61613,6,host-laptop,Process created,"C:\Windows\Explorer.EXE",C:\Windows\Explorer.EXE,
+2026-03-25T09:04:51Z,60204,4,host-laptop,Windows service queried,"sc.exe query WazuhSvc",C:\Windows\System32\sc.exe,
+2026-03-25T09:08:20Z,61603,4,host-laptop,Network connection allowed,"chrome.exe --profile-directory=Default",C:\Program Files\Google\Chrome\Application\chrome.exe,
+2026-03-25T09:10:42Z,60210,2,host-laptop,Registry value modified,"reg add HKCU\Software\DemoApp",C:\Windows\System32\reg.exe,
+2026-03-25T09:13:11Z,61613,7,host-laptop,Process created,"python simulation\safe_ransomware_sim.py --help",C:\Python313\python.exe,
+2026-03-25T09:20:02Z,60231,3,host-laptop,Task scheduler queried,"schtasks /query",C:\Windows\System32\schtasks.exe,
