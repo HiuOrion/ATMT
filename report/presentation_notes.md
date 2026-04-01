@@ -4,17 +4,18 @@
 
 1. Introduce the problem: ransomware detection and why behavior matters.
 2. Show the architecture diagram and explain why Dockerized Wazuh is used.
-3. Clarify that the ransomware evidence is prerecorded telemetry for safety and repeatability.
-4. Open the dashboard and show one benign sample and one ransomware-labeled sample.
-5. Run the safe simulator and wait for live alerts.
-6. Show the generated metrics and explain precision, recall, and time to detect.
-7. End with the standards mapping and limitations.
+3. Clarify that the ransomware evidence comes from Splunk's public Lockbit Sysmon dataset and is replayed safely.
+4. Show one benign background sample and the Lockbit-derived sample in the report outputs.
+5. Start the Dockerized Wazuh manager and tail `alerts.json`.
+6. Run the public replay script and wait for live alerts.
+7. Show the generated metrics and explain precision, recall, and time to detect.
+8. End with the standards mapping and limitations.
 
 ## Questions to Prepare For
 
 - Why did you avoid live malware?
-- How were the prerecorded telemetry samples validated?
-- What does the live simulation prove?
+- Why did you choose a public dataset?
+- What does the live replay prove?
 - What are the limitations of alert-level false positive rate?
 - How could the project be extended later with a stronger lab environment?
 

@@ -5,3 +5,7 @@ __pycache__/
 .test-work/
 pytest-cache-files-*/
 simulation/output/
+.vendor/
+runtime/
+data/public_lockbit_source.yml
+data/public_lockbit_sysmon.log

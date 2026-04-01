@@ -3,15 +3,18 @@
 ## Phase 1: Environment Preparation
 
 1. Start Docker Desktop.
-2. Run `docker compose up -d` from `infra/`.
-3. Verify the Wazuh dashboard and manager API are reachable.
-4. Ensure the host Wazuh agent is active and configured to monitor the simulator log file.
+2. Run `docker compose -f infra/docker-compose.live.yml up -d`.
+3. Run `powershell -ExecutionPolicy Bypass -File .\infra\configure_live_manager.ps1`.
+4. Verify the Wazuh manager container is running and ready to monitor `runtime/replay/live_demo.jsonl`.
 
 ## Phase 2: Evidence Preparation
 
-1. Place benign alert exports under `data/benign_logs/`.
-2. Place ransomware-labeled telemetry samples under `data/ransomware_logs/<sample_name>/`.
-3. Confirm every sample contains `alerts.csv` and `metadata.json`.
+1. Store the public Lockbit source files under `data/public_sources/lockbit_ransomware/`.
+2. Run `analysis/import_public_lockbit.py` to derive:
+   - `data/benign_logs/alerts.csv`
+   - `data/ransomware_logs/lockbit_public/alerts.csv`
+   - `data/public_replay/lockbit_public.jsonl`
+3. Confirm `metadata.json` exists under `data/ransomware_logs/lockbit_public/`.
 
 ## Phase 3: Analysis
 
@@ -30,14 +33,19 @@ python analysis/evaluate.py --benign data/benign_logs --ransomware data/ransomwa
 
 ## Phase 4: Live Validation
 
-1. Run the safe simulator:
+1. Run the public replay script:
 
 ```powershell
-python simulation/safe_ransomware_sim.py --output-dir simulation/output/demo_target --log-file simulation/output/demo_events.log --clean
+python simulation/replay_public_lockbit.py --limit 10 --delay 0.5 --start-delay 1.0
 ```
 
-2. Show the Wazuh dashboard receiving the custom demo alerts.
-3. Explain that this proves the live detection path while the prerecorded telemetry proves the analysis story.
+2. Tail the Wazuh manager alerts:
+
+```powershell
+docker exec atmt-wazuh-manager-live tail -f /var/ossec/logs/alerts/alerts.json
+```
+
+3. Explain that this proves the live detection path while the public telemetry proves the analysis story.
 
 ## Phase 5: Reporting
 

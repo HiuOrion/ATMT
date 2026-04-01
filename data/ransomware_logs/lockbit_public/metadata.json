@@ -1,0 +1,6 @@
+{
+  "family": "Lockbit public replay",
+  "source": "https://github.com/splunk/attack_data/tree/master/datasets/malware/lockbit_ransomware",
+  "attack_start_time": "2023-01-16T11:43:50.537416200Z",
+  "notes": "Derived from Splunk's public attack_data Lockbit Sysmon dataset. Converted into normalized alert rows and replay JSON for safe demonstration."
+}

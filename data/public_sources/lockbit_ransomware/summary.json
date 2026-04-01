@@ -1,0 +1,9 @@
+{
+  "benign_rows": 250,
+  "ransomware_rows": 24,
+  "replay_rows": 24,
+  "signal_shadow_delete": 12,
+  "signal_lockbit_archive": 2,
+  "signal_cipher_artifact": 8,
+  "signal_ransom_note": 2
+}

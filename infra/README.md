@@ -1,45 +1,54 @@
 # Infrastructure Notes
 
-This folder contains the infrastructure assets for a local Wazuh demo that runs on Docker Desktop. The goal is to demonstrate detection workflow and reporting, not to detonate malware.
+This folder contains the infrastructure assets for a local Wazuh demo that runs on Docker Desktop. The primary classroom path is the manager-only live compose file, which replays public Lockbit-derived events into Wazuh without running malware.
 
-## Dockerized Wazuh
+## Recommended Live Demo Compose
 
-1. Make sure Docker Desktop and WSL2 are installed.
-2. Start the stack:
-
-```powershell
-cd infra
-docker compose up -d
-```
-
-3. Confirm the containers are healthy:
+Use `docker-compose.live.yml` for the classroom demo:
 
 ```powershell
-docker compose ps
+docker compose -f infra/docker-compose.live.yml up -d
+powershell -ExecutionPolicy Bypass -File .\infra\configure_live_manager.ps1
 ```
 
-4. Open the dashboard at `https://localhost` and sign in with the credentials defined in the compose file defaults.
+Replay events:
 
-## Custom Parsing for the Live Demo
+```powershell
+python simulation/replay_public_lockbit.py --limit 8 --delay 0.5 --start-delay 1.0
+```
 
-The safe simulator writes plain-text events to `simulation/output/demo_events.log`. To ingest them as live alerts:
+Watch alerts:
 
-1. Install the Wazuh agent on the host machine.
-2. Add the example localfile block from `wazuh/agent_localfile_example.xml` to the host agent configuration.
-3. Mount the custom decoder and rule files from this repo into the manager container:
-   - `wazuh/custom_decoders/ransomware_demo_decoders.xml`
-   - `wazuh/custom_rules/ransomware_demo_rules.xml`
-4. Restart the Wazuh manager and the host Wazuh agent.
+```powershell
+docker exec atmt-wazuh-manager-live tail -f /var/ossec/logs/alerts/alerts.json
+```
 
-## Health Checks
+## Public Replay Rules
 
-- Manager API responds: `https://localhost:55000`
-- Dashboard loads: `https://localhost`
-- Host agent appears as active
-- Alerts appear when `simulation/safe_ransomware_sim.py` is run
+The manager-only compose mounts:
+
+- `../runtime/replay/`
+
+The post-start script `configure_live_manager.ps1` then:
+
+- copies `wazuh/custom_rules/public_lockbit_rules.xml` into the container
+- appends the `localfile` monitor for `live_demo.jsonl`
+- creates required log directories
+- restarts the manager cleanly
+
+The replay source consumed by the live script is:
+
+- `data/public_replay/lockbit_public.jsonl`
+
+The live destination file watched by Wazuh is:
+
+- `runtime/replay/live_demo.jsonl`
+
+## Optional Full Stack
+
+The repository still includes `docker-compose.yml` for broader experimentation, but the live classroom demo should use the manager-only path unless you explicitly want to troubleshoot the full stack.
 
 ## Notes
 
-- The compose file is intentionally single-node and presentation-oriented.
-- Use prerecorded telemetry for the ransomware evidence portion of the demo.
+- Use public telemetry for the ransomware evidence portion of the demo.
 - Do not use this environment to acquire or run real malware.

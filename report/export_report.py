@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pandas as pd
 from docx import Document
-from docx.enum.section import WD_SECTION_START
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.shared import Inches
 
@@ -76,7 +75,7 @@ def build_document() -> Document:
     document.core_properties.author = "OpenAI Codex"
 
     document.add_heading("ATMT Wazuh Demo Report", level=0)
-    document.add_paragraph("Behavior-based ransomware detection demonstration using Dockerized Wazuh, prerecorded telemetry replay, and safe live validation.")
+    document.add_paragraph("Behavior-based ransomware detection demonstration using a public Lockbit telemetry source, a Dockerized Wazuh live replay, and a safe report-generation workflow.")
     document.add_paragraph(f"Generated: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M UTC')}")
 
     document.add_heading("1. Executive Summary", level=1)
@@ -84,8 +83,9 @@ def build_document() -> Document:
         document,
         [
             "This report documents a safe and repeatable ransomware-detection demo built for a professor-facing presentation.",
-            "The environment uses Wazuh running on Docker Desktop for the SIEM layer, prerecorded telemetry to represent real ransomware evidence, and a harmless local simulator to prove the live alerting path without executing malware.",
-            "The current sample run achieved perfect alert-level precision and recall on the bundled demonstration dataset, with an average time to detect of 16 seconds.",
+            "The evidence source is Splunk's public Lockbit Sysmon dataset from the attack_data repository, converted into normalized analysis rows and replay JSON artifacts.",
+            "The live environment uses a Dockerized Wazuh manager that tails replayed JSON events and produces alerts in real time without executing malware.",
+            f"The current sample run achieved alert-level precision of {format_percent(float(metrics.get('precision', 0.0)))} and recall of {format_percent(float(metrics.get('recall', 0.0)))}, with an average time to detect of {float(metrics.get('avg_time_to_detect_seconds', 0.0)):.2f} seconds.",
         ],
     )
 
@@ -94,7 +94,7 @@ def build_document() -> Document:
         document,
         [
             "The objective is to demonstrate behavior-based ransomware detection that is technically credible, presentation-ready, and safe to reproduce on a host machine.",
-            "The repository intentionally excludes malware acquisition or execution. The evidence set consists of prerecorded alert exports and metadata collected outside the repo, while the live component is limited to benign file creation, update, and rename activity.",
+            "The repository intentionally excludes malware acquisition or execution. The evidence set consists of a public Sysmon dataset and derived replay artifacts, while the live component is limited to replaying JSON events into a Dockerized Wazuh manager.",
         ],
     )
 
@@ -102,9 +102,9 @@ def build_document() -> Document:
     add_paragraphs(
         document,
         [
-            "The live stack consists of a Wazuh manager, Wazuh indexer, and Wazuh dashboard running in Docker Desktop.",
-            "A host Wazuh agent can be configured to ingest simulator log lines from a local file and forward them to the manager, where custom decoders and rules classify them as demo ransomware behaviors.",
-            "The analysis pipeline consumes benign alert exports and ransomware-labeled sample exports, computes metrics, and produces report-ready charts and tables.",
+            "The tested classroom path uses a Dockerized Wazuh manager that tails a mounted replay file and evaluates custom JSON rules.",
+            "The replay source is derived from a public Lockbit Sysmon dataset, not from live malware execution.",
+            "The analysis pipeline consumes a Lockbit-derived ransomware set and a public-background benign baseline derived from the same source log, then produces report-ready charts and tables.",
         ],
     )
 
@@ -112,8 +112,9 @@ def build_document() -> Document:
     add_paragraphs(
         document,
         [
-            "Benign activity is stored under data/benign_logs and represents normal host behavior.",
-            "Ransomware-labeled activity is stored under data/ransomware_logs/<sample_name> with alerts.csv and metadata.json for each sample.",
+            "The source telemetry is Splunk's public Lockbit Sysmon dataset. The raw source files are stored under data/public_sources/lockbit_ransomware.",
+            "Benign activity is stored under data/benign_logs and is derived from non-suspicious background rows in the public source log.",
+            "Ransomware-labeled activity is stored under data/ransomware_logs/lockbit_public with alerts.csv and metadata.json derived from suspicious rows in the source dataset.",
             "A detection is counted when the Wazuh rule level is greater than or equal to 10. Time to detect is measured from the attack_start_time in each sample metadata file to the first alert at or above that threshold.",
         ],
     )
@@ -164,18 +165,18 @@ def build_document() -> Document:
     document.add_heading("6. Standards Mapping", level=1)
     nist_rows = [
         ["Govern", "Defined safe demo procedure, evidence handling, and operator responsibilities."],
-        ["Identify", "Tracked the host, Dockerized Wazuh services, datasets, simulator output, and analysis results."],
-        ["Protect", "Avoided live malware, limited the live validation to harmless file activity, and kept telemetry replay read-only."],
+        ["Identify", "Tracked the public source files, derived datasets, replay artifacts, Dockerized Wazuh manager, and analysis outputs."],
+        ["Protect", "Avoided live malware, treated the public dataset as read-only telemetry, and replayed JSON events instead of executing samples."],
         ["Detect", "Applied Wazuh rules, alert review, metrics computation, and time-to-detect analysis."],
         ["Respond", "Included analyst triage and explanation of triggered alerts during the demo."],
-        ["Recover", "Reset the simulator folder and regenerate outputs from known-good evidence files."],
+        ["Recover", "Cleared the replay file and regenerated outputs from the same known public source files."],
     ]
     add_table(document, ["NIST CSF 2.0 Function", "Demo Mapping"], nist_rows)
 
     iso_rows = [
         ["A.8.7", "Protection against malware", "Behavioral detection logic for ransomware-like activity."],
-        ["A.8.15", "Logging", "Wazuh exports and simulator log ingestion provide auditable records."],
-        ["A.8.16", "Monitoring activities", "Dashboard monitoring and alert review are core to the demo."],
+        ["A.8.15", "Logging", "Wazuh alert exports and replay JSON ingestion provide auditable records."],
+        ["A.8.16", "Monitoring activities", "Wazuh alert review and replay monitoring are core to the demo."],
         ["A.5.24", "Incident management planning and preparation", "Repeatable workflow for evidence review and explanation."],
         ["A.8.13", "Information backup", "Generated results and sample metadata preserve reproducible evidence."],
     ]
@@ -185,11 +186,11 @@ def build_document() -> Document:
     add_paragraphs(
         document,
         [
-            "1. Start Docker Desktop and bring up the Wazuh stack from infra/docker-compose.yml.",
-            "2. Verify that the dashboard loads and the host agent is active.",
-            "3. Present one benign sample and one ransomware-labeled sample in the dashboard or via the exported metrics.",
-            "4. Run the safe simulator to generate mass-write and mass-rename style events in a controlled demo folder.",
-            "5. Show the resulting alerts in Wazuh and conclude with the generated charts, metrics table, and standards mapping.",
+            "1. Start Docker Desktop and bring up the Wazuh manager from infra/docker-compose.live.yml.",
+            "2. Verify that the Wazuh manager container is running and that alerts.json can be tailed.",
+            "3. Present the public Lockbit source and the generated metrics from results/.",
+            "4. Run simulation/replay_public_lockbit.py to append a small set of Lockbit-derived JSON events into runtime/replay/live_demo.jsonl.",
+            "5. Tail /var/ossec/logs/alerts/alerts.json inside the container and point out the rule IDs and descriptions.",
         ],
     )
 
@@ -197,9 +198,9 @@ def build_document() -> Document:
     add_paragraphs(
         document,
         [
-            "The current metrics are based on bundled demonstration telemetry and should be presented as proof of workflow, not as a claim of production-grade ransomware coverage.",
-            "The false positive rate is computed at the alert level over the benign alert set in this repository, which is appropriate for the classroom demo but narrower than a full operational evaluation.",
-            "The recommended next step is to collect a larger benign baseline and more labeled telemetry samples while keeping the same safe replay and live-validation model.",
+            "The current metrics are based on a derived subset of a public Lockbit Sysmon dataset and should be presented as proof of workflow, not as a claim of production-grade coverage.",
+            "The false positive rate is computed at the alert level over the public-background benign rows derived from the same source log, which is appropriate for the classroom demo but narrower than a full operational evaluation.",
+            "The recommended next step is to add additional public or institution-approved telemetry sets while keeping the same safe replay model.",
         ],
     )
 
@@ -207,8 +208,8 @@ def build_document() -> Document:
     add_paragraphs(
         document,
         [
-            "This implementation demonstrates a complete, safe ransomware-detection presentation workflow: infrastructure scaffolding, evidence ingestion, metrics generation, live-safe validation, and standards-based reporting.",
-            "It is ready for a professor demo once the local Wazuh stack and host agent are started on the machine.",
+            "This implementation demonstrates a complete, safe ransomware-detection presentation workflow: public-source telemetry ingestion, metrics generation, Dockerized live replay, and standards-based reporting.",
+            "It is ready for a professor demo once the Dockerized Wazuh manager is started and the replay script is run on the machine.",
         ],
     )
 

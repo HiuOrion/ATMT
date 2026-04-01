@@ -1,6 +1,6 @@
 # Dataset Layout
 
-This directory stores alert exports that the analysis pipeline consumes. The repository includes small synthetic examples so the code and report can be exercised end to end.
+This directory stores the public-source telemetry and the derived artifacts that the analysis pipeline consumes.
 
 ## Expected Structure
 
@@ -8,18 +8,22 @@ This directory stores alert exports that the analysis pipeline consumes. The rep
 data/
   benign_logs/
     alerts.csv
+  public_sources/
+    lockbit_ransomware/
+      public_lockbit_source.yml
+      public_lockbit_sysmon.log
+      summary.json
+  public_replay/
+    lockbit_public.jsonl
   ransomware_logs/
-    sample_replay_wannacry/
-      alerts.csv
-      metadata.json
-    sample_replay_ryuk/
+    lockbit_public/
       alerts.csv
       metadata.json
 ```
 
 ## CSV Expectations
 
-The loader accepts common Wazuh-style columns and normalizes them into a shared schema. At minimum, each CSV needs fields that map to:
+The loader accepts common Wazuh-style columns and normalizes them into a shared schema. The generated CSVs already match the required structure.
 
 - `timestamp`
 - `rule.id`
@@ -39,15 +43,15 @@ Each ransomware sample directory must include a `metadata.json` file with:
 
 ```json
 {
-  "family": "WannaCry replay",
-  "source": "Trusted prerecorded telemetry",
-  "attack_start_time": "2026-03-25T09:15:00Z",
-  "notes": "Explain where the telemetry came from and why it is safe to reuse."
+  "family": "Lockbit public replay",
+  "source": "https://github.com/splunk/attack_data/tree/master/datasets/malware/lockbit_ransomware",
+  "attack_start_time": "2023-01-16T11:43:50.537416200Z",
+  "notes": "Derived from the public Splunk attack_data Lockbit Sysmon log."
 }
 ```
 
 ## Safety Guidance
 
-- Store telemetry exports only.
+- Store telemetry exports and derived replay artifacts only.
 - Do not store live malware or executable samples in this repository.
 - Treat all sample names and family labels as evidence metadata, not as instructions for execution.

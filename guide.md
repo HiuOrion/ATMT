@@ -1,14 +1,14 @@
 # ATMT Demo Guide
 
-This guide explains how to run, present, and regenerate the ATMT Wazuh demo project for a class presentation.
+This guide explains how to run, present, and regenerate the ATMT Wazuh demo project for a class presentation using a public Lockbit dataset and a Dockerized Wazuh live replay.
 
 ## 1. What This Project Does
 
 This project demonstrates behavior-based ransomware detection using:
 
 - `Wazuh` running in `Docker Desktop`
-- prerecorded ransomware-labeled telemetry for safe evidence replay
-- a harmless local simulator that generates ransomware-like file activity
+- Splunk's public Lockbit Sysmon dataset as the evidence source
+- a replay script that streams derived public events into Wazuh
 - a Python analysis pipeline that computes metrics and exports charts and a report
 
 It does **not** run live malware.
@@ -20,7 +20,7 @@ Key folders:
 - `infra/`: Docker and Wazuh setup
 - `data/`: benign and ransomware-labeled sample alerts
 - `analysis/`: metrics and chart generation
-- `simulation/`: safe live-demo script
+- `simulation/`: public replay live-demo script
 - `results/`: generated outputs
 - `report/`: exported report and report generator
 
@@ -56,7 +56,13 @@ This generates:
 
 ## 5. Export The Report
 
-Generate the `.docx` report:
+Build the public dataset first:
+
+```powershell
+python analysis/import_public_lockbit.py --source-log data/public_sources/lockbit_ransomware/public_lockbit_sysmon.log --source-meta data/public_sources/lockbit_ransomware/public_lockbit_source.yml --data-root data
+```
+
+Then generate the `.docx` report:
 
 ```powershell
 python report/export_report.py
@@ -80,86 +86,71 @@ $document.Close()
 $word.Quit()
 ```
 
-## 6. Start Wazuh In Docker
+## 6. Start The Tested Live Docker Demo
+
+The tested live path for this project is the manager-only compose file:
 
 From the repo root:
 
 ```powershell
-cd infra
-docker compose up -d
-docker compose ps
+docker compose -f infra/docker-compose.live.yml up -d
+powershell -ExecutionPolicy Bypass -File .\infra\configure_live_manager.ps1
+docker compose -f infra/docker-compose.live.yml ps
 ```
 
-Validate the compose file first if needed:
+Show live alerts:
 
 ```powershell
-docker compose -f infra/docker-compose.yml config
+python simulation/replay_public_lockbit.py --limit 8 --delay 0.5 --start-delay 1.0
+docker exec atmt-wazuh-manager-live tail -n 30 /var/ossec/logs/alerts/alerts.json
 ```
 
-Open the dashboard:
+This path was chosen because it is lightweight and reliable for classroom demonstration.
 
-- `https://localhost`
+## 7. Optional Full Stack Compose
 
-## 7. Configure The Live Demo
+The repo still includes `infra/docker-compose.yml` if you want to experiment with a fuller Wazuh stack, but the manager-only compose is the recommended live demo path.
 
-To make the live simulator appear in Wazuh, the host Wazuh agent must watch:
+## 8. Public Source
 
-- `simulation/output/demo_events.log`
+Public source used in this repo:
 
-Use the sample config in:
+- `https://github.com/splunk/attack_data/tree/master/datasets/malware/lockbit_ransomware`
 
-- `infra/wazuh/agent_localfile_example.xml`
+The raw source files are copied into:
 
-Replace:
+- `data/public_sources/lockbit_ransomware/`
 
-```text
-REPLACE_WITH_ABSOLUTE_PATH_TO_DEMO_EVENTS_LOG
-```
+## 9. Live Replay Files
 
-with:
+Replay source:
 
-```text
-E:\Learn\Master degree\Documents\An toàn máy tính\ATMT\simulation\output\demo_events.log
-```
+- `data/public_replay/lockbit_public.jsonl`
 
-The manager must also load:
+Live file consumed by Dockerized Wazuh:
 
-- `infra/wazuh/custom_decoders/ransomware_demo_decoders.xml`
-- `infra/wazuh/custom_rules/ransomware_demo_rules.xml`
-
-After changing the host agent config, restart the Wazuh agent.
-
-## 8. Run The Live Demo
-
-From the repo root:
-
-```powershell
-python simulation/safe_ransomware_sim.py --output-dir simulation/output/demo_target --log-file simulation/output/demo_events.log --clean
-```
-
-This generates harmless demo events:
-
-- `staging_complete`
-- `mass_write`
-- `mass_rename`
+- `runtime/replay/live_demo.jsonl`
 
 Expected Wazuh custom rule IDs:
 
-- `100503`
-- `100501`
-- `100502`
+- `100610`
+- `100611`
+- `100612`
+- `100613`
+- `100614`
 
-## 9. Recommended Presentation Flow
+## 10. Recommended Presentation Flow
 
 1. Show the architecture and explain that the environment is safe and repeatable.
-2. Show the exported metrics and charts in `results/`.
-3. Show the final report in `report/ATMT_Wazuh_Demo_Report.pdf`.
-4. Open Wazuh Dashboard and explain the custom rules.
-5. Run the simulator live.
-6. Refresh/search for the new alerts.
-7. Finish with the NIST CSF 2.0 and ISO 27001:2022 mapping.
+2. State that the ransomware evidence comes from Splunk's public Lockbit Sysmon dataset.
+3. Show the exported metrics and charts in `results/`.
+4. Show the final report in `report/ATMT_Wazuh_Demo_Report.pdf`.
+5. Start the live Docker manager if it is not already running.
+6. Replay 8-12 public Lockbit-derived events live.
+7. Tail `alerts.json` from the Wazuh container and point out the rule IDs and descriptions.
+8. Finish with the NIST CSF 2.0 and ISO 27001:2022 mapping.
 
-## 10. Useful Files During Class
+## 11. Useful Files During Class
 
 - `results/run_summary.md`
 - `results/detection_results.png`
@@ -169,44 +160,67 @@ Expected Wazuh custom rule IDs:
 - `report/framework_mapping.md`
 - `report/presentation_notes.md`
 
-## 11. Useful Dashboard Searches
+## 12. Useful Live Commands
 
-Search by custom rule IDs:
+Start the live manager:
 
-```text
-rule.id:100501 or rule.id:100502 or rule.id:100503
+```powershell
+docker compose -f infra/docker-compose.live.yml up -d
+powershell -ExecutionPolicy Bypass -File .\infra\configure_live_manager.ps1
 ```
 
-Search by demo text:
+Replay public Lockbit events:
 
-```text
-demo_ransomware
+```powershell
+python simulation/replay_public_lockbit.py --limit 10 --delay 0.5 --start-delay 1.0
 ```
 
-## 12. Troubleshooting
+Watch Wazuh alerts:
+
+```powershell
+docker exec atmt-wazuh-manager-live tail -f /var/ossec/logs/alerts/alerts.json
+```
+
+Inspect replay file:
+
+```powershell
+Get-Content runtime\replay\live_demo.jsonl
+```
+
+## 13. Useful Alert Filters
+
+Search by custom rule IDs in the tailed JSON:
+
+```text
+100610, 100611, 100612, 100613, 100614
+```
+
+## 14. Troubleshooting
 
 If Docker starts but Wazuh does not load:
 
-- run `docker compose ps`
-- run `docker compose logs`
+- run `docker compose -f infra/docker-compose.live.yml ps`
+- run `docker compose -f infra/docker-compose.live.yml logs`
 - confirm Docker Desktop is healthy
 
-If the simulator runs but no Wazuh alert appears:
+If the replay runs but no Wazuh alert appears:
 
-- confirm the host Wazuh agent is installed
-- confirm the `localfile` path is correct
-- confirm the manager has the demo decoder and rule files
-- restart the agent and the manager
-- check whether `simulation/output/demo_events.log` is being updated
+- confirm `runtime/replay/live_demo.jsonl` is being written
+- confirm the container is running
+- rerun `powershell -ExecutionPolicy Bypass -File .\infra\configure_live_manager.ps1`
+- confirm the custom rule exists inside the container with `docker exec atmt-wazuh-manager-live ls /var/ossec/etc/rules`
+- do not use `--truncate` after the manager is already watching the file; rerun the configure script first if you need a clean replay file
+- restart the manager container and replay again
 
 If report export fails:
 
+- rerun `python analysis/import_public_lockbit.py --source-log data/public_sources/lockbit_ransomware/public_lockbit_sysmon.log --source-meta data/public_sources/lockbit_ransomware/public_lockbit_source.yml --data-root data`
 - rerun `python analysis/evaluate.py --benign data/benign_logs --ransomware data/ransomware_logs --out results`
 - rerun `python report/export_report.py`
 
-## 13. Safety Notes
+## 15. Safety Notes
 
 - No live malware is included.
 - No malware acquisition or execution steps are part of this repo.
-- The simulator only creates and renames harmless local files in a demo folder.
-- The prerecorded samples are evidence data only.
+- The public Lockbit source is read-only telemetry.
+- The live demo replays derived JSON events into Dockerized Wazuh.

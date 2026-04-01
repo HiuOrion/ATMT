@@ -1,5 +1,0 @@
-@timestamp,rule.id,rule.level,agent.name,rule.description,data.win.eventdata.commandLine,data.win.eventdata.image,mitre.id
-2026-03-25T09:15:14Z,100501,12,telemetry-replay,Demo ransomware behavior: rapid file write burst,"demo_ransomware_sim event=mass_write count=18 target=demo_target session=sessionA",C:\Demo\simulator.exe,T1486
-2026-03-25T09:15:29Z,100502,12,telemetry-replay,Demo ransomware behavior: rapid file rename burst,"demo_ransomware_sim event=mass_rename count=18 target=demo_target session=sessionA",C:\Demo\simulator.exe,T1486
-2026-03-25T09:15:40Z,61613,11,telemetry-replay,Suspicious command execution,"cipher.exe /w:C:\Users\demo\Documents",C:\Windows\System32\cipher.exe,T1070
-2026-03-25T09:16:02Z,100503,10,telemetry-replay,Demo ransomware simulation staging completed,"demo_ransomware_sim event=staging_complete count=18 target=demo_target session=sessionA",C:\Demo\simulator.exe,

@@ -1,0 +1,58 @@
+<group name="public_lockbit_demo,">
+  <rule id="100600" level="3">
+    <decoded_as>json</decoded_as>
+    <field name="dataset">public_lockbit</field>
+    <description>Public Lockbit replay event received</description>
+    <group>public_dataset,replay,</group>
+  </rule>
+
+  <rule id="100610" level="14">
+    <if_sid>100600</if_sid>
+    <field name="signal_type">shadow_delete</field>
+    <description>Public Lockbit replay: shadow-related deletion or modification observed</description>
+    <group>ransomware,behavioral_detection,public_dataset,</group>
+    <mitre>
+      <id>T1490</id>
+    </mitre>
+  </rule>
+
+  <rule id="100611" level="13">
+    <if_sid>100600</if_sid>
+    <field name="signal_type">ransom_note</field>
+    <description>Public Lockbit replay: ransom note artifact observed</description>
+    <group>ransomware,behavioral_detection,public_dataset,</group>
+    <mitre>
+      <id>T1486</id>
+    </mitre>
+  </rule>
+
+  <rule id="100612" level="12">
+    <if_sid>100600</if_sid>
+    <field name="signal_type">cipher_artifact</field>
+    <description>Public Lockbit replay: cipher-related artifact observed</description>
+    <group>ransomware,behavioral_detection,public_dataset,</group>
+    <mitre>
+      <id>T1486</id>
+    </mitre>
+  </rule>
+
+  <rule id="100613" level="11">
+    <if_sid>100600</if_sid>
+    <field name="signal_type">lockbit_archive</field>
+    <description>Public Lockbit replay: Lockbit-named artifact observed</description>
+    <group>ransomware,behavioral_detection,public_dataset,</group>
+    <mitre>
+      <id>T1486</id>
+    </mitre>
+  </rule>
+
+  <rule id="100614" level="10">
+    <if_sid>100600</if_sid>
+    <field name="signal_type">process_access</field>
+    <description>Public Lockbit replay: suspicious process access observed</description>
+    <group>ransomware,behavioral_detection,public_dataset,</group>
+    <mitre>
+      <id>T1055</id>
+    </mitre>
+  </rule>
+</group>

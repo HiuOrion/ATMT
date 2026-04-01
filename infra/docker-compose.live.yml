@@ -1,0 +1,16 @@
+services:
+  wazuh.manager:
+    image: wazuh/wazuh-manager:4.8.1
+    container_name: atmt-wazuh-manager-live
+    hostname: wazuh.manager
+    restart: unless-stopped
+    ports:
+      - "1514:1514"
+      - "1515:1515"
+      - "55000:55000"
+    volumes:
+      - wazuh_live_logs:/var/ossec/logs
+      - ../runtime/replay:/var/ossec/logs/replay
+
+volumes:
+  wazuh_live_logs:
