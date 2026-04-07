@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm list:*)",
+      "Bash(where claude:*)",
+      "Bash(claude update:*)",
+      "WebSearch"
+    ]
+  }
+}

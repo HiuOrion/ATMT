@@ -44,6 +44,25 @@ The live destination file watched by Wazuh is:
 
 - `runtime/replay/live_demo.jsonl`
 
+The safe simulation destination file watched by Wazuh is:
+
+- `runtime/replay/demo_simulation.log`
+
+## Web Control Plane
+
+The repo now ships with a local web app that wraps the live classroom flow:
+
+```powershell
+python -m demo_web
+```
+
+Open <http://127.0.0.1:8000>, click `Thiết lập`, then choose either:
+
+- `Chạy Lockbit` for the public telemetry replay
+- `Chạy Mô phỏng an toàn` for the harmless file-activity simulation
+
+The web UI keeps the manager-only stack and replay files unchanged; it only orchestrates the existing scripts and streams state to the browser.
+
 ## Optional Full Stack
 
 The repository still includes `docker-compose.yml` for broader experimentation, but the live classroom demo should use the manager-only path unless you explicitly want to troubleshoot the full stack.

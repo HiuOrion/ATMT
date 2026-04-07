@@ -68,6 +68,23 @@ docker exec atmt-wazuh-manager-live tail -n 20 /var/ossec/logs/alerts/alerts.jso
 
 This produces live alerts inside the Dockerized Wazuh manager without needing live malware or a host Wazuh agent.
 
+## Web Demo Board
+
+The repository also includes a local FastAPI control plane for presentations. It can:
+
+- bring up the manager-only Docker stack
+- configure the live manager
+- trigger either the public Lockbit replay or the harmless file-activity simulation
+- stream source events and Wazuh alerts into a single Vietnamese UI
+
+Run it with:
+
+```powershell
+python -m demo_web
+```
+
+Then open <http://127.0.0.1:8000>.
+
 ## Safety
 
 - No live malware execution is implemented or documented in this repository.

@@ -172,3 +172,12 @@ Live replay chứng minh rằng các sự kiện đã được chuẩn hóa có 
 ### Nếu thầy hỏi: “Đề tài này đóng góp gì?”
 
 Đề tài đóng góp ở ba điểm: một là xây dựng quy trình phát hiện an toàn và lặp lại được; hai là tự động hóa phần đánh giá bằng metric và report; ba là liên hệ phần thực nghiệm kỹ thuật với khung chuẩn NIST CSF 2.0 và ISO 27001:2022.
+## Demo live bằng web app
+
+1. Mở terminal tại thư mục project và chạy `python -m demo_web`.
+2. Mở trình duyệt tại `http://127.0.0.1:8000`.
+3. Nhấn `Thiết lập` và giải thích rằng hệ thống chỉ dựng Wazuh manager riêng cho buổi demo.
+4. Chỉ vào badge `Public telemetry only` để nhấn mạnh không chạy malware thật.
+5. Chạy `Lockbit` để cho thấy public telemetry đi vào timeline và Wazuh sinh alert tương ứng.
+6. Chạy `Mô phỏng an toàn` để minh họa thêm hành vi đổi tên/ghi file hàng loạt nhưng vẫn vô hại.
+7. Kết thúc bằng panel `Bằng chứng thực nghiệm` để nối live demo với kết quả Precision/Recall/F1 đã báo cáo.

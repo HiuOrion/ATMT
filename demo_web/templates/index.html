@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATMT Wazuh Live Demo</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body data-initial-state='{{ initial_state | tojson }}'>
+  <div class="backdrop"></div>
+  <main class="app-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">ATMT / Wazuh live board</p>
+        <h1>Demo phát hiện ransomware an toàn, trực quan, chạy bằng public telemetry.</h1>
+        <p class="lede">Bảng điều khiển này chỉ replay dữ liệu công khai hoặc mô phỏng file activity vô hại. Không chạy malware thật.</p>
+      </div>
+      <div class="hero-actions">
+        <span class="safety-badge">Public telemetry only</span>
+        <div class="service-strip">
+          <div><span class="service-label">Docker</span><strong id="docker-status">Chưa sẵn sàng</strong></div>
+          <div><span class="service-label">Manager</span><strong id="manager-status">Chưa cấu hình</strong></div>
+          <div><span class="service-label">Trạng thái</span><strong id="session-state">idle</strong></div>
+        </div>
+        <div class="button-row">
+          <button id="setup-btn" class="primary">Thiết lập</button>
+          <button id="reset-btn">Đặt lại</button>
+          <button id="lockbit-btn">Chạy Lockbit</button>
+          <button id="safe-btn">Chạy Mô phỏng an toàn</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="board">
+      <aside class="panel panel-left">
+        <div class="panel-head">
+          <p class="panel-kicker">Nguồn dữ liệu</p>
+          <h2>Sự kiện nguồn</h2>
+        </div>
+        <div class="event-surface" id="source-event">
+          <p class="placeholder">Chưa có sự kiện. Bấm <strong>Thiết lập</strong> rồi chọn một flow demo.</p>
+        </div>
+        <div class="log-surface">
+          <div class="surface-head">
+            <h3>Log điều phối</h3>
+            <span id="session-id">session: chưa có</span>
+          </div>
+          <pre id="command-log"></pre>
+        </div>
+      </aside>
+
+      <section class="panel panel-center">
+        <div class="panel-head">
+          <p class="panel-kicker">Story mode</p>
+          <h2>Timeline tấn công và phát hiện</h2>
+        </div>
+        <div class="timeline-toggle">
+          <button class="timeline-chip active" data-mode="lockbit_public">Lockbit public</button>
+          <button class="timeline-chip" data-mode="safe_file_activity">Mô phỏng an toàn</button>
+        </div>
+        <div class="timeline-mode" data-mode="lockbit_public">
+          {% for step in lockbit_timeline %}
+          <article class="timeline-step" data-step-id="{{ step.id }}">
+            <span class="step-index">{{ "%02d" % loop.index }}</span>
+            <div>
+              <h3>{{ step.label }}</h3>
+              <p>{{ "Alert từ Wazuh sẽ làm sáng điểm này." if step.id == "detection_triggered" else "Step này sẽ sáng khi sự kiện tương ứng được replay." }}</p>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        <div class="timeline-mode hidden" data-mode="safe_file_activity">
+          {% for step in safe_timeline %}
+          <article class="timeline-step" data-step-id="{{ step.id }}">
+            <span class="step-index">{{ "%02d" % loop.index }}</span>
+            <div>
+              <h3>{{ step.label }}</h3>
+              <p>{{ "Alert từ Wazuh sẽ làm sáng điểm này." if step.id == "detection_triggered" else "Step này sẽ sáng khi mô phỏng file activity đi tới giai đoạn này." }}</p>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <aside class="panel panel-right">
+        <div class="panel-head">
+          <p class="panel-kicker">Wazuh</p>
+          <h2>Cảnh báo trực tiếp</h2>
+        </div>
+        <div class="alert-surface" id="alert-surface">
+          <p class="placeholder">Chưa có alert nào được ghi nhận cho session hiện tại.</p>
+        </div>
+        <div class="evidence-strip">
+          <div class="surface-head">
+            <h3>Bằng chứng thực nghiệm</h3>
+          </div>
+          <div class="artifact-grid">
+            <figure>
+              <img src="/results/detection_results.png" alt="Biểu đồ kết quả phát hiện">
+              <figcaption>Detection results</figcaption>
+            </figure>
+            <figure>
+              <img src="/results/top_alerts.png" alt="Biểu đồ cảnh báo nổi bật">
+              <figcaption>Top alerts</figcaption>
+            </figure>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="status-bar">
+      <div><span class="service-label">Chế độ</span><strong id="active-mode">-</strong></div>
+      <div><span class="service-label">Sự kiện đã replay</span><strong id="events-count">0</strong></div>
+      <div><span class="service-label">Alert ghi nhận</span><strong id="alerts-count">0</strong></div>
+      <div><span class="service-label">Độ trễ alert đầu</span><strong id="latency-value">-</strong></div>
+    </footer>
+  </main>
+  <script src="{{ url_for('static', path='app.js') }}"></script>
+</body>
+</html>
